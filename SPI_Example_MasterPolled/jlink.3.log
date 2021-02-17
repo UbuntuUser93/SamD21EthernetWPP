@@ -1,0 +1,8 @@
+
+T2BEC 1963:755 SEGGER J-Link V6.48a Log File (0001ms, 0168ms total)
+T2BEC 1963:755 DLL Compiled: Jul 30 2019 15:16:09 (0001ms, 0168ms total)
+T2BEC 1963:755 Logging started @ 2021-02-05 08:02 (0001ms, 0168ms total)
+T2BEC 1963:762 JLINK_ExecCommand("Device = ATSAMD21J18A", ...). Device "ATSAMD21J18" selected.  returns 0x00 (0001ms, 0169ms total)
+T2BEC 1963:867 JLINK_Close() (0013ms, 0182ms total)
+T2BEC 1963:867  (0013ms, 0182ms total)
+T2BEC 1963:867 Closed (0013ms, 0182ms total)

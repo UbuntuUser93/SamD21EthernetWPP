@@ -1,0 +1,7 @@
+T2BEC 1964:659 SEGGER J-Link V6.48a Log File (0001ms, 0705ms total)
+T2BEC 1964:659 DLL Compiled: Jul 30 2019 15:16:09 (0001ms, 0705ms total)
+T2BEC 1964:659 Logging started @ 2021-02-05 08:02 (0001ms, 0705ms total)
+T2BEC 1964:668 JLINK_GetHWStatus(...)  returns 0x00 (0001ms, 0706ms total)
+T2BEC 1966:601 JLINK_Close() (0010ms, 0716ms total)
+T2BEC 1966:601  (0010ms, 0716ms total)
+T2BEC 1966:601 Closed (0010ms, 0716ms total)
