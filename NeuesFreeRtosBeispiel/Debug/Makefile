@@ -475,9 +475,9 @@ src/ASF/thirdparty/freertos/freertos-10.0.0/Source/tasks.d \
 src/ASF/thirdparty/freertos/freertos-10.0.0/Source/timers.d \
 src/main.d
 
-OUTPUT_FILE_PATH +=NeuesFreeRtosBeispiel.elf
+OUTPUT_FILE_PATH +=SamD21EthernetWPP.elf
 
-OUTPUT_FILE_PATH_AS_ARGS +=NeuesFreeRtosBeispiel.elf
+OUTPUT_FILE_PATH_AS_ARGS +=SamD21EthernetWPP.elf
 
 ADDITIONAL_DEPENDENCIES:=
 
@@ -964,14 +964,14 @@ all: $(OUTPUT_FILE_PATH) $(ADDITIONAL_DEPENDENCIES)
 $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP) $(LINKER_SCRIPT_DEP)
 	@echo Building target: $@
 	@echo Invoking: ARM/GNU Linker : 6.3.1
-	$(QUOTE)R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -mthumb -Wl,-Map="NeuesFreeRtosBeispiel.map" --specs=nano.specs -Wl,--start-group -larm_cortexM0l_math -lm  -Wl,--end-group -L"../src/ASF/thirdparty/CMSIS/Lib/GCC"  -Wl,--gc-sections -mcpu=cortex-m0plus -Wl,--entry=Reset_Handler -Wl,--cref -mthumb -T../src/ASF/sam0/utils/linker_scripts/samd21/gcc/samd21j18a_flash.ld  
+	$(QUOTE)R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -mthumb -Wl,-Map="SamD21EthernetWPP.map" --specs=nano.specs -Wl,--start-group -larm_cortexM0l_math -lm  -Wl,--end-group -L"../src/ASF/thirdparty/CMSIS/Lib/GCC"  -Wl,--gc-sections -mcpu=cortex-m0plus -Wl,--entry=Reset_Handler -Wl,--cref -mthumb -T../src/ASF/sam0/utils/linker_scripts/samd21/gcc/samd21j18a_flash.ld  
 	@echo Finished building target: $@
-	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -O binary "NeuesFreeRtosBeispiel.elf" "NeuesFreeRtosBeispiel.bin"
-	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "NeuesFreeRtosBeispiel.elf" "NeuesFreeRtosBeispiel.hex"
-	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -j .eeprom --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0 --no-change-warnings -O binary "NeuesFreeRtosBeispiel.elf" "NeuesFreeRtosBeispiel.eep" || exit 0
-	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objdump.exe" -h -S "NeuesFreeRtosBeispiel.elf" > "NeuesFreeRtosBeispiel.lss"
-	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature  "NeuesFreeRtosBeispiel.elf" "NeuesFreeRtosBeispiel.srec"
-	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-size.exe" "NeuesFreeRtosBeispiel.elf"
+	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -O binary "SamD21EthernetWPP.elf" "SamD21EthernetWPP.bin"
+	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "SamD21EthernetWPP.elf" "SamD21EthernetWPP.hex"
+	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -j .eeprom --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0 --no-change-warnings -O binary "SamD21EthernetWPP.elf" "SamD21EthernetWPP.eep" || exit 0
+	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objdump.exe" -h -S "SamD21EthernetWPP.elf" > "SamD21EthernetWPP.lss"
+	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature  "SamD21EthernetWPP.elf" "SamD21EthernetWPP.srec"
+	"R:\Program Files (x86)\Atmel\Studio\7.0\toolchain\arm\arm-gnu-toolchain\bin\arm-none-eabi-size.exe" "SamD21EthernetWPP.elf"
 	
 	
 
@@ -983,5 +983,5 @@ $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP) $(LINKER
 clean:
 	-$(RM) $(OBJS_AS_ARGS) $(EXECUTABLES)  
 	-$(RM) $(C_DEPS_AS_ARGS)   
-	rm -rf "NeuesFreeRtosBeispiel.elf" "NeuesFreeRtosBeispiel.a" "NeuesFreeRtosBeispiel.hex" "NeuesFreeRtosBeispiel.bin" "NeuesFreeRtosBeispiel.lss" "NeuesFreeRtosBeispiel.eep" "NeuesFreeRtosBeispiel.map" "NeuesFreeRtosBeispiel.srec"
+	rm -rf "SamD21EthernetWPP.elf" "SamD21EthernetWPP.a" "SamD21EthernetWPP.hex" "SamD21EthernetWPP.bin" "SamD21EthernetWPP.lss" "SamD21EthernetWPP.eep" "SamD21EthernetWPP.map" "SamD21EthernetWPP.srec"
 	

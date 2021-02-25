@@ -674,6 +674,7 @@
   <ItemGroup>
     <Folder Include="src\" />
     <Folder Include="src\Application\Debug\" />
+    <Folder Include="src\Application\WebServer\" />
     <Folder Include="src\ASF\" />
     <Folder Include="src\ASF\common2\" />
     <Folder Include="src\ASF\common2\components\" />
@@ -783,6 +784,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\Application\SPI\conf_spi.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Application\WebServer\webserver.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Application\WebServer\webserver.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\ioLibrary\Application\loopback\loopback.c">

@@ -14,8 +14,8 @@
 #include "stdio.h"
 #include "stdarg.h"
 
-#define MSG_BUFFER_LENGTH	512
-#define NEW_MSG_LENGTH		128
+#define MSG_BUFFER_LENGTH	1024
+#define NEW_MSG_LENGTH		512
 #define DEBUG_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
 
 
@@ -78,6 +78,7 @@ void errorMSG(char* format,...)
 void addMSG(char* string)
 {
 	uint8_t i = 0;
+	while(SEND_iterator < MSG_iterator - 30) vTaskDelay(2); //erstmal aktuelle Daten wegschreiben!
 	taskENTER_CRITICAL();
 	while(string[i] != 0)
 	{
@@ -90,8 +91,11 @@ void addMSG(char* string)
 	}
 	MSG_Buffer[MSG_iterator] =0x0A; // next line
 	MSG_iterator++;
+	if(MSG_iterator >= MSG_BUFFER_LENGTH) MSG_iterator = 0;
 	MSG_Buffer[MSG_iterator] =0x0D; // Cursor to first Row
 	MSG_iterator++;
+	if(MSG_iterator >= MSG_BUFFER_LENGTH) MSG_iterator = 0;
+
 	if(MSG_iterator >= MSG_BUFFER_LENGTH) MSG_iterator = 0;
 	taskEXIT_CRITICAL();
 

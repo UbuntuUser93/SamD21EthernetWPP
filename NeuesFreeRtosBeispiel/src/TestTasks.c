@@ -39,10 +39,10 @@ uint8_t send_dat[1024]={0,};
 
 
 wiz_NetInfo gWIZNETINFO = { .mac = {0x00,0x08,0xdc,0x78,0x91,0x71},
-.ip = {192,168,178,10},
+.ip = {192,168,1,10},
 .sn = {255, 255, 255, 0},
 .gw = {192, 168, 178, 1},
-.dns = {8, 8, 8, 8},
+.dns = {192, 168, 178, 1},
 .dhcp = NETINFO_STATIC};
 
 #define ETH_MAX_BUF_SIZE	2048
@@ -203,8 +203,13 @@ int32_t WebServer(uint8_t sn, uint8_t* buf, uint16_t port)
    uint16_t destport;
 #endif
 	volatile uint8_t sr = getSn_SR(sn);
-	debugMSG("OutPutSn_SR : %d\n",sn);
-   switch(getSn_SR(sn))
+	if (sr == SOCK_CLOSED) debugMSG("Socket%d geschlossen!",sn); 
+	else if (sr == SOCK_INIT) debugMSG("Socket%d Initial Mode!",sn);
+	else if (sr == SOCK_LISTEN) debugMSG("Socket%d im Listen state!",sn);
+	else if (sr == SOCK_ESTABLISHED) debugMSG("Socket%d Verbindung eingerichtet!",sn);
+	else debugMSG("Socket%d Listening status %d!",sn, sr);
+
+   switch(sr)
    {
       case SOCK_ESTABLISHED :
          if(getSn_IR(sn) & Sn_IR_CON)
@@ -278,14 +283,14 @@ void testTasks_init(void)
 {
 	debugInit();
 	
-	infoMSG("SAMD21 Projekt mit W5500 Integration");
-	
-	infoMSG("Info Beispiel");
-	debugMSG("Debug Beispiel");
-	warningMSG("Warnung Beispiel");
-	errorMSG("Error Beispiel");
 
-	infoMSG("Noch ein Paar Bytes als Test ausgabe im UART");
+	
+//	infoMSG("Info Beispiel");
+//	debugMSG("Debug Beispiel");
+//	warningMSG("Warnung Beispiel");
+//	errorMSG("Error Beispiel");
+//
+//	infoMSG("Noch ein Paar Bytes als Test ausgabe im UART");
 	
 	
 	xTaskCreate(mainTest_task,
@@ -301,43 +306,117 @@ void testTasks_init(void)
 
 static void mainTest_task(void *params)
 {
+	volatile int8_t success;
+	
+	infoMSG("SAMD21 Projekt mit W5500 Integration");
 	strcpy((char*) send_dat,"<!DOCTYPE html>		<html>		<body>		<h1>This is heading 1</h1>		<h2>This is heading 2</h2>		<h3>This is heading 3</h3>		<h4>This is heading 4</h4>		<h5>This is heading 5</h5>		<h6>This is heading 6</h6>		</body>		</html>");
 	
 	
 	reg_wizchip_spi_cbfunc(spiReadByte, spiWriteByte);
 	reg_wizchip_cs_cbfunc(csEnable,csDisable);
 	
-
-//	struct port_config config;
-//	config.direction = PORT_PIN_DIR_OUTPUT_WTH_READBACK;
-//	config.input_pull = PORT_PIN_PULL_NONE;
-	
-//	port_pin_set_config(PIN_PA11,&config);
-//	port_pin_toggle_output_level(PIN_PA11);
-//	port_pin_toggle_output_level(PIN_PA11);
-//	port_pin_toggle_output_level(PIN_PA11);
-
 	configure_spi_master();	
 	W5x00Initialze();
-	
+//	wizchip_init();
 	volatile wiz_NetInfo info;
 	wizchip_setnetinfo(&gWIZNETINFO);
-	wizchip_getnetinfo(&info);
+//	wizchip_getnetinfo(&info);
 	
+ 	setSHAR(&(gWIZNETINFO.mac));
+ 	setGAR(&gWIZNETINFO.gw);
+ 	setSUBR(&gWIZNETINFO.sn);
+ 	setSIPR(&gWIZNETINFO.ip);
 	
-	memset(&gWIZNETINFO,0,sizeof(gWIZNETINFO));
-	wizchip_getnetinfo(&gWIZNETINFO);
+	getSHAR(&gWIZNETINFO.mac);
+	getGAR(&gWIZNETINFO.gw);
+	getSUBR(&gWIZNETINFO.sn);
+	getSIPR(&gWIZNETINFO.ip);
+	
 	
 	uint8_t tmpstr[6] = {0,};
 	ctlwizchip(CW_GET_ID,(void*)tmpstr);
+	infoMSG("WizchipName: %s",tmpstr);
 	
-//	DNS_init(0,ethBuf0);
-	//"^[ 2 J""
-	volatile uint8_t zr_12;
-	zr_12 = (uint8_t) 0x61;
-	zr_12 = "b";
-	zr_12 = (uint8_t) "c";
+	uint8_t tmpstr2[6] = {0,};
+	ctlwizchip(CW_RESET_WIZCHIP,(void*)tmpstr2);
 	
+	for (int i=0; i<8; i++) 
+	{
+		uint8_t cntl_byte = (0x0C + (i<<5));
+		
+		spiWriteByte(0x1E >> 8);
+		spiWriteByte(0x1E & 0xFF);
+		spiWriteByte(cntl_byte);
+		spiWriteByte(2);
+		
+		spiWriteByte(0x1F >> 8);
+		spiWriteByte(0x1F & 0xFF);
+		spiWriteByte(cntl_byte);
+		spiWriteByte(2);
+	}
+	
+	
+//	setSHAR(&(gWIZNETINFO.mac));
+//	setGAR(&gWIZNETINFO.gw);
+//	setSUBR(&gWIZNETINFO.sn);
+//	setSIPR(&gWIZNETINFO.ip);
+
+		
+	
+	
+	uint8_t sn = 1;
+	
+	for(uint8_t i = 0; i<8; i++)
+	{
+		success = socket(i,Sn_MR_TCP,PORT_WEBSERVER,0);
+		success = listen(i);
+	}
+	
+
+	
+	
+	success = getSn_SR(sn);
+	if (success == SOCK_CLOSED) debugMSG("Socket%d geschlossen!",sn);
+	else if (success == SOCK_INIT) debugMSG("Socket%d Initial Mode!",sn);
+	else if (success == SOCK_LISTEN) debugMSG("Socket%d im Listen state!",sn);
+	else if (success == SOCK_ESTABLISHED) debugMSG("Socket%d Verbindung eingerichtet!",sn);
+	else debugMSG("Socket%d status %d!",sn, success);
+	
+
+	success = socket(sn,Sn_MR_TCP,PORT_WEBSERVER,0);
+	if (success == sn) debugMSG("Socket Erstellung erfolgreich!");
+	else if (success == SOCKERR_SOCKNUM) errorMSG("Socket Invalid socket number !");
+	else if (success == SOCKERR_SOCKMODE) errorMSG("Socket Not support socket mode!");
+	else if (success == SOCKERR_SOCKFLAG) errorMSG("Socket Invaild socket flag!");	
+	else debugMSG("Socket%d status %d!",sn, success);
+	
+	success = getSn_SR(sn);
+	if (success == SOCK_CLOSED) debugMSG("Socket%d geschlossen!",sn);
+	else if (success == SOCK_INIT) debugMSG("Socket%d Initial Mode!",sn);
+	else if (success == SOCK_LISTEN) debugMSG("Socket%d im Listen state!",sn);
+	else if (success == SOCK_ESTABLISHED) debugMSG("Socket%d Verbindung eingerichtet!",sn);
+	else debugMSG("Socket%d status %d!",sn, success);
+
+	success = listen(0);
+	volatile uint8_t test = SOCKERR_SOCKINIT;
+	if (success == SOCK_OK) debugMSG("Socket Listening erfolgreich!");
+	else if (success == SOCKERR_SOCKINIT) errorMSG("Socket Listening socket not initiated!");
+	else if (success == SOCKERR_SOCKCLOSED) errorMSG("Socket Listening socket closed!");
+	else if (success == SOCKERR_SOCKOPT) errorMSG("Socket Listening invalid Socket option!");
+	else if (success == SOCKERR_SOCKMODE) errorMSG("Socket Listening Socketmode invalid!");
+	else debugMSG("Socket%d listening status %d!",sn, success);
+	
+	
+	success = getSn_SR(sn);
+	if (success == SOCK_CLOSED) debugMSG("Socket%d geschlossen!",sn);
+	else if (success == SOCK_INIT) debugMSG("Socket%d Initial Mode!",sn);
+	else if (success == SOCK_LISTEN) debugMSG("Socket%d im Listen state!",sn);
+	else if (success == SOCK_ESTABLISHED) debugMSG("Socket%d Verbindung eingerichtet!",sn);
+	else debugMSG("Socket%d status %d!",sn, success);
+
+	
+	print_network_information();
+
 	
 	while(1)
 	{
@@ -349,9 +428,9 @@ static void mainTest_task(void *params)
 		
 		//port_pin_toggle_output_level(PIN_PA17);
 		//delay_ms(200);
-		print_network_information();
+		//print_network_information();
 		
-		WebServer(1, ethBuf1, PORT_WEBSERVER);
+		WebServer(0, ethBuf1, PORT_WEBSERVER);
 		
 		vTaskDelay(500); // kleine Pause um nicht die ganze zeit aktiv zu warten
 
@@ -383,7 +462,7 @@ uint8_t spiReadByte(void)
 //	spi_read(&spi_master_instance,&zr);
 	
 	spi_transceive_wait(&spi_master_instance,zr2,&zr);
-	return (uint8_t)(zr && 0xff);
+	return (uint8_t)(zr & 0xff);
 }
 
 void spiWriteByte(uint8_t byte)
@@ -398,27 +477,21 @@ void W5x00Initialze(void)
 {
 	intr_kind temp;
 	int8_t phy_link =0;
-#if _WIZCHIP_ < W5200
-	unsigned char W5x00_AdrSet[2][4] = {{2,2,2,2},{2,2,2,2}};
-#else
-	unsigned char W5x00_AdrSet[2][8] = {{2,2,2,2,2,2,2,2},{2,2,2,2,2,2,2,2}};
-#endif
-	/*
-	 */
-#if _WIZCHIP_ == W5200
-	temp = 0;
-#else
-	temp = IK_DEST_UNREACH;
-#endif
 
-	if(ctlwizchip(CW_INIT_WIZCHIP,(void*)W5x00_AdrSet) == -1)
+	unsigned char W5x00_AdrSet[2][8] = {{2,2,2,2,2,2,2,2},{2,2,2,2,2,2,2,2}};
+	temp = IK_DEST_UNREACH;
+	
+	int8_t success = ctlwizchip(CW_INIT_WIZCHIP,(void*)W5x00_AdrSet);
+	debugMSG("CW_INIT_WIZCHIP : %d",success);
+	if(success == -1)
 	{
 		errorMSG("W5x00 initialized fail.\r\n");
 	}
-
-	if(ctlwizchip(CW_SET_INTRMASK,&temp) == -1)
+	success = ctlwizchip(CW_SET_INTRMASK,&temp);
+	debugMSG("CW_SET_INTRMASK : %d",success);
+	if(success == -1)
 	{
-		debugMSG("W5x00 interrupt\r\n");
+		infoMSG("W5x00 interrupt\r\n");
 	}
 	do{//check phy status.
 		if(ctlwizchip(CW_GET_PHYLINK,&phy_link) == -1){
@@ -435,9 +508,9 @@ void print_network_information(void)
 	memset(&gWIZNETINFO,0,sizeof(gWIZNETINFO));
 
 	wizchip_getnetinfo(&gWIZNETINFO);
-	infoMSG("MAC Address : %02x:%02x:%02x:%02x:%02x:%02x\n\r",gWIZNETINFO.mac[0],gWIZNETINFO.mac[1],gWIZNETINFO.mac[2],gWIZNETINFO.mac[3],gWIZNETINFO.mac[4],gWIZNETINFO.mac[5]);
-	infoMSG("IP  Address : %d.%d.%d.%d\n\r",gWIZNETINFO.ip[0],gWIZNETINFO.ip[1],gWIZNETINFO.ip[2],gWIZNETINFO.ip[3]);
-	infoMSG("Subnet Mask : %d.%d.%d.%d\n\r",gWIZNETINFO.sn[0],gWIZNETINFO.sn[1],gWIZNETINFO.sn[2],gWIZNETINFO.sn[3]);
-	infoMSG("Gateway     : %d.%d.%d.%d\n\r",gWIZNETINFO.gw[0],gWIZNETINFO.gw[1],gWIZNETINFO.gw[2],gWIZNETINFO.gw[3]);
-	infoMSG("DNS Server  : %d.%d.%d.%d\n\r",gWIZNETINFO.dns[0],gWIZNETINFO.dns[1],gWIZNETINFO.dns[2],gWIZNETINFO.dns[3]);
+	infoMSG("MAC Address : %02x:%02x:%02x:%02x:%02x:%02x",gWIZNETINFO.mac[0],gWIZNETINFO.mac[1],gWIZNETINFO.mac[2],gWIZNETINFO.mac[3],gWIZNETINFO.mac[4],gWIZNETINFO.mac[5]);
+	infoMSG("IP  Address : %d.%d.%d.%d",gWIZNETINFO.ip[0],gWIZNETINFO.ip[1],gWIZNETINFO.ip[2],gWIZNETINFO.ip[3]);
+	infoMSG("Subnet Mask : %d.%d.%d.%d",gWIZNETINFO.sn[0],gWIZNETINFO.sn[1],gWIZNETINFO.sn[2],gWIZNETINFO.sn[3]);
+	infoMSG("Gateway     : %d.%d.%d.%d",gWIZNETINFO.gw[0],gWIZNETINFO.gw[1],gWIZNETINFO.gw[2],gWIZNETINFO.gw[3]);
+	infoMSG("DNS Server  : %d.%d.%d.%d",gWIZNETINFO.dns[0],gWIZNETINFO.dns[1],gWIZNETINFO.dns[2],gWIZNETINFO.dns[3]);
 }
